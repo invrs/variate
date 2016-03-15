@@ -7,11 +7,19 @@ class Cookie {
   }
 
   read({ name }) {
-    return { variant: Cookies.get(name) }
+    if (typeof document == "undefined") {
+      return {}
+    } else {
+      return { variant: Cookies.get(name) }
+    }
   }
 
   write({ name, variant, state: { cookie } }) {
-    return Cookies.set(name, variant, cookie)
+    if (typeof document == "undefined") {
+      return {}
+    } else {
+      return Cookies.set(name, variant, cookie)
+    }
   }
 }
 

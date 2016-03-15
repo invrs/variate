@@ -3,6 +3,10 @@ import factory from "./variate/factory"
 class Variate {
 
   convert({ args, include: { callbackStore, cookie }, state: { callback, tests } }) {
+    if (typeof document == "undefined") {
+      return
+    }
+
     args = {
       ...args,
       ...this.getTest(args),
@@ -29,6 +33,10 @@ class Variate {
   randomVariant({ test }) {
     let index = Math.random() * test.length
     index = Math.floor(index)
+
+    if (typeof document == "undefined") {
+      index = 0
+    }
 
     return { variant: test[index] }
   }
