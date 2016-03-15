@@ -20,7 +20,6 @@ describe("Variate", () => {
 
     it("sets cookie options", () => {
       let cookie = { expires: 1 }
-      console.log("update state")
       variate({ cookie })
       
       expect(variate()._include.cookie().state())

@@ -17,11 +17,11 @@ class CallbackStore {
     return value
   }
 
-  run({ name, test, variant, converted, args, state: { cache, callback } }) {
-    let { value } = this.cached({ callback, name, variant, converted })
+  run({ args, state: { cache, callback } }) {
+    let { value } = this.cached({ ...args, callback })
 
     if (!value && callback) {
-      callback({ name, test, variant, converted })
+      callback(args)
     }
     
     return value

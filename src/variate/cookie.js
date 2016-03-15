@@ -2,7 +2,7 @@ import factory from "./factory"
 import Cookies from "js-cookie"
 
 class Cookie {
-  init(...args) {
+  init() {
     this.state({ cookie: { expires: 10 * 365 } })
   }
 

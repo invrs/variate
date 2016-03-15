@@ -2,17 +2,18 @@ import factory from "./variate/factory"
 
 class Variate {
 
-  convert({ name, include: { callbackStore, cookie }, state: { callback, tests } }) {
-    let { test } = this.getTest({ name })
-    let { variant } = cookie().read({ name })
+  convert({ args, include: { callbackStore, cookie }, state: { callback, tests } }) {
+    args = {
+      ...args,
+      ...this.getTest(args),
+      ...cookie().read(args)
+    }
 
-    if (!variant) {
+    if (!args.variant) {
       throw new Error("convert() called before test()")
     }
 
-    return callbackStore().run({
-      name, test, variant, converted: true
-    })
+    return callbackStore().run({ ...args, converted: true })
   }
 
   getTest({ name, state: { tests } }) {
@@ -32,18 +33,24 @@ class Variate {
     return { variant: test[index] }
   }
 
-  test({ name, include: { callbackStore, cookie }, state: { tests } }) {
-    let { test } = this.getTest({ name })
-    let { variant } = cookie().read({ name })
-
-    if (!variant) {
-      variant = this.randomVariant({ test }).variant
-      cookie().write({ name, variant })
+  test({ args, include: { callbackStore, cookie }, state: { tests } }) {
+    args = {
+      ...args,
+      ...this.getTest(args),
+      ...cookie().read(args)
     }
 
-    callbackStore().run({ name, test, variant })
+    if (!args.variant) {
+      args = {
+        ...args,
+        ...this.randomVariant(args)
+      }
+      cookie().write(args)
+    }
 
-    return variant
+    callbackStore().run(args)
+
+    return args.variant
   }
 
   updated({ state, include: { callbackStore, cookie } }) {
