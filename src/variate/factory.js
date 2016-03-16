@@ -12,7 +12,16 @@ export default factory()
         super(...args)
 
         this.standardIO()
-        this.include(__dirname)
+        this.include(__dirname, {
+          files: {
+            dirs: {},
+            files: [
+              `${__dirname}/callback_store.js`,
+              `${__dirname}/cookie.js`,
+              `${__dirname}/factory.js`
+            ]
+          }
+        })
         this.stateful()
         
         if (super.init) {
