@@ -7,7 +7,6 @@ import { state } from "industry-state"
 
 import "./callback_store"
 import "./cookie"
-import "./factory"
 
 export default factory()
   .set("init", Class =>
@@ -21,8 +20,7 @@ export default factory()
             dirs: {},
             files: [
               `${__dirname}/callback_store.js`,
-              `${__dirname}/cookie.js`,
-              `${__dirname}/factory.js`
+              `${__dirname}/cookie.js`
             ]
           }
         })
