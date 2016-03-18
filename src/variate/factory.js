@@ -5,6 +5,10 @@ import { functions } from "industry-functions"
 import { standard_io } from "industry-standard-io"
 import { state } from "industry-state"
 
+import "./callback_store"
+import "./cookie"
+import "./factory"
+
 export default factory()
   .set("init", Class =>
     class extends Class {
