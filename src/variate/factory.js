@@ -5,8 +5,10 @@ import { functions } from "industry-functions"
 import { standard_io } from "industry-standard-io"
 import { state } from "industry-state"
 
-import "./callback_store"
-import "./cookie"
+let browserify = () => {
+  require("./callback_store")
+  require("./cookie")
+}
 
 export default factory()
   .set("init", Class =>
