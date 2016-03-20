@@ -23,6 +23,10 @@ export default factory()
             files: [
               `${__dirname}/callback_store.js`,
               `${__dirname}/cookie.js`
+            ],
+            values: [
+              require("./callback_store").default,
+              require("./cookie").default
             ]
           }
         })
