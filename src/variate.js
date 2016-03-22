@@ -30,7 +30,7 @@ class Variate {
     return { test }
   }
 
-  randomVariant({ args, test }) {
+  randomVariant({ test }) {
     let index = Math.random() * test.length
     index = Math.floor(index)
 
@@ -41,7 +41,7 @@ class Variate {
     return { variant: test[index] }
   }
 
-  returnVariant({ args, variant }) {
+  returnVariant({ variant }) {
     return variant
   }
 
