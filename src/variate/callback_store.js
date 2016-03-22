@@ -5,7 +5,7 @@ class CallbackStore {
     this.state({ cache: {} })
   }
 
-  cached({ callback, name, variant, converted, state: { cache } }) {
+  cached({ name, variant, converted, state: { cache, callback } }) {
     let key = `${name}:${variant}:${converted}`
     let value = cache[key]
 
@@ -17,14 +17,18 @@ class CallbackStore {
     return value
   }
 
-  run({ args, state: { cache, callback } }) {
-    let { value } = this.cached({ ...args, callback })
-
+  callback({ args, value, state: { callback } }) {
     if (!value && callback) {
       callback(args)
     }
-    
-    return value
+    return value || {}
+  }
+
+  run({ promise: { chain } }) {
+    return chain(
+      this.cached,
+      this.callback
+    )
   }
 }
 

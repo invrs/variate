@@ -53,7 +53,7 @@ describe("Variate", () => {
       variate({ tests })
       unloadDocument()
 
-      for (let i=0; i<100; i++) {  
+      for (let i=0; i<10; i++) {  
         let variant = variate().test({ name: "a" })
         expect(variant.value).toBe("b")
       }

@@ -2,22 +2,22 @@ import factory from "./variate/factory"
 
 class Variate {
 
-  convert({ args, include: { callbackStore, cookie }, state: { callback, tests } }) {
+  convertedFlag() {
+    return { converted: true }
+  }
+
+  convert({ include: { callbackStore, cookie }, promise: { chain } }) {
     if (typeof document == "undefined") {
       return
     }
 
-    args = {
-      ...args,
-      ...this.getTest(args),
-      ...cookie().read(args)
-    }
-
-    if (!args.variant) {
-      throw new Error("convert() called before test()")
-    }
-
-    return callbackStore().run({ ...args, converted: true })
+    return chain(
+      this.getTest,
+      cookie().read,
+      this.throwUnlessVariant,
+      this.convertedFlag,
+      callbackStore().run
+    )
   }
 
   getTest({ name, state: { tests } }) {
@@ -30,7 +30,7 @@ class Variate {
     return { test }
   }
 
-  randomVariant({ test }) {
+  randomVariant({ args, test }) {
     let index = Math.random() * test.length
     index = Math.floor(index)
 
@@ -41,29 +41,38 @@ class Variate {
     return { variant: test[index] }
   }
 
-  test({ args, include: { callbackStore, cookie }, state: { tests } }) {
-    args = {
-      ...args,
-      ...this.getTest(args),
-      ...cookie().read(args)
+  returnVariant({ args, variant }) {
+    return variant
+  }
+
+  test({ include: { callbackStore, cookie }, promise: { chain } }) {
+    return chain(
+      this.getTest,
+      cookie().read,
+      this.writeVariant,
+      callbackStore().run,
+      this.returnVariant
+    )
+  }
+
+  throwUnlessVariant({ variant }) {
+    if (!variant) {
+      throw new Error("convert() called before test()")
     }
-
-    if (!args.variant) {
-      args = {
-        ...args,
-        ...this.randomVariant(args)
-      }
-      cookie().write(args)
-    }
-
-    callbackStore().run(args)
-
-    return args.variant
   }
 
   updated({ state, include: { callbackStore, cookie } }) {
     callbackStore(state)
     cookie(state)
+  }
+
+  writeVariant({ variant, include: { cookie }, promise: { chain } }) {
+    if (!variant) {
+      return chain(
+        this.randomVariant,
+        cookie().write
+      )
+    }
   }
 }
 
