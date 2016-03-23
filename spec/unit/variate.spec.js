@@ -62,8 +62,11 @@ describe("Variate", () => {
     it("writes to document.cookie", () => {
       variate({ tests })
       let variant = variate().test({ name: "a" }).value
+      variate().convert({ name: "a" })
 
-      expect(document.cookie).toEqual(`a=${variant}; path=/`)
+      expect(document.cookie).toEqual(
+        `variate={%22a%22:%22${variant}%22%2C%22c:a%22:%22${variant}%22}; path=/`
+      )
     })
 
     it("reads from document.cookie", () => {

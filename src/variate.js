@@ -2,11 +2,7 @@ import factory from "./variate/factory"
 
 class Variate {
 
-  convertedFlag() {
-    return { converted: true }
-  }
-
-  convert({ include: { callbackStore, cookie }, promise: { chain } }) {
+  convert({ include: { cookie }, promise: { chain } }) {
     if (typeof document == "undefined") {
       return
     }
@@ -15,8 +11,9 @@ class Variate {
       this.getTest,
       cookie().read,
       this.throwUnlessVariant,
-      this.convertedFlag,
-      callbackStore().run
+      this.setConverted,
+      cookie().read,
+      this.runUnlessVariant
     )
   }
 
@@ -45,6 +42,22 @@ class Variate {
     return variant
   }
 
+  runUnlessVariant({ variant, include: { callbackStore, cookie }, promise: { chain } }) {
+    if (!variant) {
+      return chain(
+        this.unsetConverted,
+        cookie().read,
+        this.setConverted,
+        callbackStore().run,
+        cookie().write
+      )
+    }
+  }
+
+  setConverted() {
+    return { converted: true }
+  }
+
   test({ include: { callbackStore, cookie }, promise: { chain } }) {
     return chain(
       this.getTest,
@@ -59,6 +72,10 @@ class Variate {
     if (!variant) {
       throw new Error("convert() called before test()")
     }
+  }
+
+  unsetConverted() {
+    return { converted: false }
   }
 
   updated({ state, include: { callbackStore, cookie } }) {

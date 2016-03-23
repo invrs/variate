@@ -6,20 +6,49 @@ class Cookie {
     this.state({ cookie: { expires: 10 * 365 } })
   }
 
-  read({ name }) {
+  get({ key }) {
     if (typeof document == "undefined") {
       return {}
     } else {
-      return { variant: Cookies.get(name) }
+      let value = Cookies.getJSON("variate")
+      if (value) {
+        return { variant: Cookies.getJSON("variate")[key] }
+      } else {
+        return {}      
+      }
     }
   }
 
-  write({ name, variant, state: { cookie } }) {
+  key({ name, converted }) {
+    let key = [ name ]
+    if (converted) {
+      key.unshift("c")
+    }
+    return { key: key.join(":") }
+  }
+
+  read({ promise: { chain } }) {
+    return chain(
+      this.key,
+      this.get
+    )
+  }
+
+  set({ key, variant, state: { cookie } }) {
     if (typeof document == "undefined") {
       return {}
     } else {
-      return Cookies.set(name, variant, cookie)
+      let value = Cookies.getJSON("variate") || {}
+      value[key] = variant
+      return Cookies.set("variate", value, cookie)
     }
+  }
+
+  write({ promise: { chain } }) {
+    return chain(
+      this.key,
+      this.set
+    )
   }
 }
 
