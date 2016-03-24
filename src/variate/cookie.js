@@ -3,27 +3,27 @@ import Cookies from "js-cookie"
 
 class Cookie {
   init() {
-    this.state({ cookie: { expires: 10 * 365 } })
+    let client = typeof document != "undefined"
+    
+    this.state({
+      client,
+      cookie: { expires: 10 * 365 }
+    })
+    
+    if (client) {
+      this.state({ cache: Cookies.getJSON("variate") || {} })
+    }
   }
 
-  get({ key }) {
-    if (typeof document == "undefined") {
-      return {}
-    } else {
-      let value = Cookies.getJSON("variate")
-      if (value) {
-        return { variant: Cookies.getJSON("variate")[key] }
-      } else {
-        return {}      
-      }
+  get({ key, state: { cache, client } }) {
+    if (client) {
+      return { variant: cache[key] }
     }
   }
 
   key({ name, converted }) {
     let key = [ name ]
-    if (converted) {
-      key.unshift("c")
-    }
+    if (converted) { key.unshift("c") }
     return { key: key.join(":") }
   }
 
@@ -34,13 +34,12 @@ class Cookie {
     )
   }
 
-  set({ key, variant, state: { cookie } }) {
-    if (typeof document == "undefined") {
-      return {}
-    } else {
-      let value = Cookies.getJSON("variate") || {}
-      value[key] = variant
-      return Cookies.set("variate", value, cookie)
+  set({ converted, key, variant, state: { cache, client, cookie } }) {
+    if (client) {
+      cache[key] = converted || variant
+      Cookies.set("variate", cache, cookie)
+      this.state({ cache: cache })
+      return { variant: cache[key] }
     }
   }
 

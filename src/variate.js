@@ -13,7 +13,7 @@ class Variate {
       this.throwUnlessVariant,
       this.setConverted,
       cookie().read,
-      this.runUnlessVariant
+      this.convertUnlessVariant
     )
   }
 
@@ -42,13 +42,13 @@ class Variate {
     return variant
   }
 
-  runUnlessVariant({ variant, include: { callbackStore, cookie }, promise: { chain } }) {
+  convertUnlessVariant({ variant, include: { cookie }, promise: { chain }, state: { callback } }) {
     if (!variant) {
       return chain(
         this.unsetConverted,
         cookie().read,
         this.setConverted,
-        callbackStore().run,
+        callback,
         cookie().write
       )
     }
@@ -58,14 +58,24 @@ class Variate {
     return { converted: true }
   }
 
-  test({ include: { callbackStore, cookie }, promise: { chain } }) {
+  test({ include: { cookie }, promise: { chain } }) {
     return chain(
       this.getTest,
       cookie().read,
-      this.writeVariant,
-      callbackStore().run,
-      this.returnVariant
+      this.testUnlessVariant
     )
+  }
+
+  testUnlessVariant({ variant, promise: { chain }, state: { callback } }) {
+    if (variant) {
+      return chain(this.returnVariant)
+    } else {
+      return chain(
+        this.writeVariant,
+        callback,
+        this.returnVariant
+      )
+    }
   }
 
   throwUnlessVariant({ variant }) {
@@ -78,8 +88,7 @@ class Variate {
     return { converted: false }
   }
 
-  updated({ state, include: { callbackStore, cookie } }) {
-    callbackStore(state)
+  updated({ state, include: { cookie } }) {
     cookie(state)
   }
 

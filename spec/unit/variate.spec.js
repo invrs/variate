@@ -2,10 +2,12 @@ import variate from "../../"
 
 function loadDocument() {
   global.document = { cookie: undefined }
+  variate({ client: true })
 }
 
 function unloadDocument() {
   delete global.document
+  variate({ client: false })
 }
 
 let test  = [ "b", "c" ]
@@ -14,6 +16,7 @@ let tests = { a: test }
 describe("Variate", () => {
   beforeEach(() => {
     loadDocument()
+    variate({ cache: {}, tests })
   })
 
   afterEach(() => {
@@ -37,20 +40,18 @@ describe("Variate", () => {
       variate({ cookie })
       
       expect(variate()._include.cookie().state())
-        .toEqual({ cookie })
+        .toEqual({ client: true, cache: {}, cookie, tests: { a: [ 'b', 'c' ] } })
     })
   })
 
   describe("test", () => {
     it("returns a random variant", () => {
-      variate({ tests })
       let variant = variate().test({ name: "a" })
 
       expect(test.indexOf(variant.value) > -1).toBe(true)
     })
 
     it("returns first variant if document undefined", () => {
-      variate({ tests })
       unloadDocument()
 
       for (let i=0; i<10; i++) {  
@@ -60,12 +61,11 @@ describe("Variate", () => {
     })
 
     it("writes to document.cookie", () => {
-      variate({ tests })
       let variant = variate().test({ name: "a" }).value
       variate().convert({ name: "a" })
 
       expect(document.cookie).toEqual(
-        `variate={%22a%22:%22${variant}%22%2C%22c:a%22:%22${variant}%22}; path=/`
+        `variate={%22a%22:%22${variant}%22%2C%22c:a%22:true}; path=/`
       )
     })
 
@@ -87,7 +87,7 @@ describe("Variate", () => {
         expect(converted).toEqual(undefined)
         done()
       }
-      variate({ tests, callback  })
+      variate({ callback  })
       variate().test({ name: "a" })
     })
 
@@ -95,7 +95,7 @@ describe("Variate", () => {
       let called = false
       let callback = () => called = true
       
-      variate({ tests, callback, cache: {}  })
+      variate({ callback, cache: {}  })
       variate().test({ name: "a" })
       expect(called).toBe(true)
 
@@ -114,7 +114,6 @@ describe("Variate", () => {
         expect(converted).toEqual(true)
         done()
       }
-      variate({ tests, cache: {}  })
       variate().test({ name: "a" })
       variate({ callback  })
       variate().convert({ name: "a" })
@@ -124,7 +123,7 @@ describe("Variate", () => {
       let called = false
       let callback = () => called = true
       
-      variate({ tests, callback  })
+      variate({ callback  })
       variate().test({ name: "a" })
       variate().convert({ name: "a" })
       expect(called).toBe(true)
@@ -138,7 +137,6 @@ describe("Variate", () => {
       let called = false
       let callback = () => called = true
 
-      variate({ tests })
       variate().test({ name: "a" })
       unloadDocument()
       variate({ callback })

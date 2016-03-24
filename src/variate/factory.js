@@ -16,11 +16,9 @@ export default factory()
           files: {
             dirs: {},
             files: [
-              `${__dirname}/callback_store.js`,
               `${__dirname}/cookie.js`
             ],
             values: [
-              require("./callback_store").default,
               require("./cookie").default
             ]
           }
