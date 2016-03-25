@@ -2,8 +2,8 @@ import factory from "./factory"
 import Cookies from "js-cookie"
 
 class Cookie {
-  init() {
-    if (this.state().client) {
+  init({ client }) {
+    if (client) {
       this.state({ cache: Cookies.getJSON("variate") || {} })
     }
   }

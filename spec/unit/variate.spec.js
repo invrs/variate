@@ -2,12 +2,12 @@ import variate from "../../"
 
 function loadDocument() {
   global.document = { cookie: undefined }
-  variate({ client: true })
+  variate().init()
 }
 
 function unloadDocument() {
   delete global.document
-  variate({ client: false })
+  variate().init()
 }
 
 let test  = [ "b", "c" ]
