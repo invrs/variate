@@ -2,10 +2,12 @@ import factory from "./variate/factory"
 
 class Variate {
 
-  convert({ include: { cookie }, promise: { chain } }) {
-    if (typeof document == "undefined") {
-      return
-    }
+  init() {
+    this.state({ client: typeof document != "undefined" })
+  }
+
+  convert({ include: { cookie }, promise: { chain }, state: { client } }) {
+    if (!client) { return }
 
     return chain(
       this.getTest,
@@ -27,13 +29,11 @@ class Variate {
     return { test }
   }
 
-  randomVariant({ test }) {
+  randomVariant({ test, state: { client } }) {
     let index = Math.random() * test.length
     index = Math.floor(index)
 
-    if (typeof document == "undefined") {
-      index = 0
-    }
+    if (!client) { index = 0 }
 
     return { variant: test[index] }
   }
@@ -81,6 +81,8 @@ class Variate {
   throwUnlessVariant({ variant }) {
     if (!variant) {
       throw new Error("convert() called before test()")
+    } else {
+      return {}
     }
   }
 

@@ -3,14 +3,7 @@ import Cookies from "js-cookie"
 
 class Cookie {
   init() {
-    let client = typeof document != "undefined"
-    
-    this.state({
-      client,
-      cookie: { expires: 10 * 365 }
-    })
-    
-    if (client) {
+    if (this.state().client) {
       this.state({ cache: Cookies.getJSON("variate") || {} })
     }
   }
@@ -18,6 +11,8 @@ class Cookie {
   get({ key, state: { cache, client } }) {
     if (client) {
       return { variant: cache[key] }
+    } else {
+      return {}
     }
   }
 
@@ -40,6 +35,8 @@ class Cookie {
       Cookies.set("variate", cache, cookie)
       this.state({ cache: cache })
       return { variant: cache[key] }
+    } else {
+      return {}
     }
   }
 
