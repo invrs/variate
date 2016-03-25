@@ -107,8 +107,9 @@ describe("Variate", () => {
 
   describe("convert", () => {
     it("calls a callback", (done) => {
-      let callback = ({ name, test, variant, converted }) => {
+      let callback = ({ name, random, test, variant, converted }) => {
         expect(name).toBe("a")
+        expect(random).toBe(true)
         expect(test).toEqual(test)
         expect(test.indexOf(variant) > -1).toBe(true)
         expect(converted).toEqual(true)
@@ -116,7 +117,7 @@ describe("Variate", () => {
       }
       variate().test({ name: "a" })
       variate({ callback  })
-      variate().convert({ name: "a" })
+      variate().convert({ name: "a", random: true })
     })
 
     it("doesn't call the callback again", () => {
