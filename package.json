@@ -22,12 +22,12 @@
   },
   "homepage": "https://github.com/invrs/variate#readme",
   "dependencies": {
-    "industry": "^2.6.6",
-    "industry-functions": "^0.0.7",
-    "industry-include": "^0.0.10",
-    "industry-instance": "^0.0.6",
-    "industry-state": "^0.0.12",
-    "industry-standard-io": "^0.1.12",
+    "industry": "2.6.6",
+    "industry-functions": "0.0.7",
+    "industry-include": "0.0.10",
+    "industry-instance": "0.1.0",
+    "industry-state": "0.0.12",
+    "industry-standard-io": "0.1.12",
     "js-cookie": "^2.1.0"
   },
   "devDependencies": {
