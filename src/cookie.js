@@ -7,6 +7,7 @@ class Cookie {
     this.state({ cache })
     this.pattern({
       convertedKey: { converted: true },
+      getCache: { cached: true },
       setCookie: { cached: c => !c }
     })
   }
@@ -19,10 +20,8 @@ class Cookie {
     return { key: `c:${name}` }
   }
 
-  getCache({ cached, name, state: { cache } }) {
-    if (cached) {
-      return { variant: cache[name] }
-    }
+  getCache({ name, state: { cache } }) {
+    return { variant: cache[name] }
   }
 
   key({ name }) {
