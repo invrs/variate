@@ -38,7 +38,7 @@ class Cookie {
     )
   }
 
-  set({ key, variant, chain: { each }, state: { cache } }) {
+  set({ chain: { each } }) {
     return each(
       this.key,
       this.convertedKey,
@@ -58,7 +58,7 @@ class Cookie {
     return {}
   }
 
-  setCookie({ cached, state: { cache, cookie } }) {
+  setCookie({ state: { cache, cookie } }) {
     Cookies.set("variate", cache, cookie)
     return {}
   }
