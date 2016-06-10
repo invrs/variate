@@ -49,11 +49,7 @@ class Cookie {
   }
 
   setCache({ converted, key, variant, state: { cache } }) {
-    if (converted) {
-      cache[key] = 1
-    } else {
-      cache[key] = variant
-    }
+    cache[key] = converted ? 1 : variant
     this.state({ cache })
     return {}
   }
