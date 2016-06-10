@@ -25,7 +25,7 @@ describe("Variate", () => {
 
   describe("randomVariant", () => {
     it("returns a random variant from a test array", () => {
-      let { variant } = variate().randomVariant({ test })
+      let { variant } = variate().selectRandomVariant({ test })
       expect(test.indexOf(variant) > -1).toBe(true)
     })
   })
@@ -39,15 +39,14 @@ describe("Variate", () => {
       let cookie = { expires: 1 }
       variate({ cookie })
       
-      expect(variate()._include.cookie().state())
-        .toEqual({ client: true, cache: {}, cookie, tests: { a: [ 'b', 'c' ] } })
+      expect(variate().cookie().state())
+        .toEqual({ cache: {}, cookie, tests: { a: [ 'b', 'c' ] } })
     })
   })
 
   describe("test", () => {
     it("returns a random variant", () => {
       let variant = variate().test({ name: "a" })
-
       expect(test.indexOf(variant.value) > -1).toBe(true)
     })
 
@@ -65,7 +64,7 @@ describe("Variate", () => {
       variate().convert({ name: "a" })
 
       expect(document.cookie).toEqual(
-        `variate={%22a%22:%22${variant}%22%2C%22c:a%22:true}; path=/`
+        `variate={%22a%22:%22${variant}%22%2C%22c:a%22:1}; path=/`
       )
     })
 
