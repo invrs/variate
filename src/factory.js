@@ -7,7 +7,6 @@ import { functions } from "industry-functions"
 import { pattern } from "industry-pattern"
 import { standard_io } from "industry-standard-io"
 import { state } from "industry-state"
-import { trace } from "industry-trace"
 
 export default factory()
   .set("exception", exception)
@@ -16,7 +15,6 @@ export default factory()
   .set("functions", functions)
   .set("pattern", pattern)
   .set("state", state)
-  // .set("trace", trace)
   .set("standard_io", standard_io)
   .set("chain", chain)
   .set("init", Class =>
