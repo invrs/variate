@@ -25,7 +25,7 @@
     "babel-runtime": "*",
     "industry": "2.9.0",
     "industry-chain": "0.4.0",
-    "industry-exception": "0.4.0",
+    "industry-exception": "0.5.0",
     "industry-functions": "0.4.0",
     "industry-include": "1.2.0",
     "industry-instance": "0.3.0",
