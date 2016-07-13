@@ -16,7 +16,7 @@ let tests = { a: test }
 describe("Variate", () => {
   beforeEach(() => {
     loadDocument()
-    variate({ cache: {}, tests })
+    variate({ tests }).cookie().cache = {}
   })
 
   afterEach(() => {
@@ -40,7 +40,7 @@ describe("Variate", () => {
       variate({ cookie })
       
       expect(variate().cookie().state())
-        .toEqual({ cache: {}, cookie, tests: { a: [ 'b', 'c' ] } })
+        .toEqual({ cookie, tests: { a: [ 'b', 'c' ] } })
     })
   })
 
@@ -94,7 +94,7 @@ describe("Variate", () => {
       let called = false
       let callback = () => called = true
       
-      variate({ callback, cache: {}  })
+      variate({ callback }).cookie().cache = {}
       variate().test({ name: "a" })
       expect(called).toBe(true)
 

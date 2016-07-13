@@ -3,8 +3,7 @@ import Cookies from "js-cookie"
 
 class Cookie {
   init() {
-    let cache = Cookies.getJSON("variate") || {}
-    this.state({ cache })
+    this.cache = Cookies.getJSON("variate") || {}
   }
 
   pattern() {
@@ -15,16 +14,16 @@ class Cookie {
     }
   }
 
-  cacheStatus({ key, state: { cache } }) {
-    return { cached: !!cache[key] }
+  cacheStatus({ key }) {
+    return { cached: !!this.cache[key] }
   }
 
   convertedKey({ name }) {
     return { key: `c:${name}` }
   }
 
-  getCache({ name, state: { cache } }) {
-    return { variant: cache[name] }
+  getCache({ name }) {
+    return { variant: this.cache[name] }
   }
 
   key({ name }) {
@@ -50,14 +49,13 @@ class Cookie {
     ]
   }
 
-  setCache({ converted, key, variant, state: { cache } }) {
-    cache[key] = converted ? 1 : variant
-    this.state({ cache })
+  setCache({ converted, key, variant }) {
+    this.cache[key] = converted ? 1 : variant
     return {}
   }
 
-  setCookie({ state: { cache, cookie } }) {
-    Cookies.set("variate", cache, cookie)
+  setCookie({ state: { cookie } }) {
+    Cookies.set("variate", this.cache, cookie)
     return {}
   }
 }
