@@ -6,10 +6,11 @@ class Variate {
   }
 
   pattern() {
+    let server = () => typeof document == "undefined"
     return {
-      callCallback: ({ cached }) => typeof document != "undefined" && !cached,
-      selectFirstVariant: () => typeof document == "undefined",
-      selectRandomVariant: () => typeof document != "undefined"
+      callCallback: ({ cached }) => !server() && !cached,
+      selectFirstVariant: () => server(),
+      selectRandomVariant: () => !server()
     }
   }
 
