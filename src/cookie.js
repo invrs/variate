@@ -5,11 +5,14 @@ class Cookie {
   init() {
     let cache = Cookies.getJSON("variate") || {}
     this.state({ cache })
-    this.pattern({
+  }
+
+  pattern() {
+    return {
       convertedKey: { converted: true },
       getCache: { cached: true },
       setCookie: { cached: c => !c }
-    })
+    }
   }
 
   cacheStatus({ key, state: { cache } }) {
@@ -28,23 +31,23 @@ class Cookie {
     return { key: name }
   }
 
-  get({ chain: { each } }) {
-    return each(
+  get() {
+    return [
       this.key,
       this.convertedKey,
       this.cacheStatus,
       this.getCache
-    )
+    ]
   }
 
-  set({ chain: { each } }) {
-    return each(
+  set() {
+    return [
       this.key,
       this.convertedKey,
       this.cacheStatus,
       this.setCache,
       this.setCookie
-    )
+    ]
   }
 
   setCache({ converted, key, variant, state: { cache } }) {

@@ -3,22 +3,25 @@ import factory from "./factory"
 class Variate {
   init({ cookie }) {
     this.cookie(cookie)
-    this.pattern({
+  }
+
+  pattern() {
+    return {
       callCallback: ({ cached }) => typeof document != "undefined" && !cached,
       selectFirstVariant: () => typeof document == "undefined",
       selectRandomVariant: () => typeof document != "undefined"
-    })
+    }
   }
 
-  callCallback({ chain: { each }, state: { callback } }) {
+  callCallback({ state: { callback } }) {
     if (callback) {
-      each(callback)
+      return [ callback ]
     }
     return {}
   }
 
-  convert({ chain: { each } }) {
-    return each(
+  convert() {
+    return [
       this.getTest,
       this.selectFirstVariant,
       this.selectRandomVariant,
@@ -29,7 +32,7 @@ class Variate {
       this.callCallback,
       this.cookie().set,
       this.returnVariant
-    )
+    ]
   }
 
   getTest({ name, state: { tests } }) {
@@ -54,8 +57,8 @@ class Variate {
     return { converted: true }
   }
 
-  test({ chain: { each } }) {
-    return each(
+  test() {
+    return [
       this.getTest,
       this.selectFirstVariant,
       this.selectRandomVariant,
@@ -63,7 +66,7 @@ class Variate {
       this.callCallback,
       this.cookie().set,
       this.returnVariant
-    )
+    ]
   }
 
   updated({ state }) {
