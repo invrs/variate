@@ -70,8 +70,8 @@ class Variate {
     ]
   }
 
-  updated({ state }) {
-    this.cookie(state)
+  updated() {
+    this.cookie(this.state())
   }
 }
 
