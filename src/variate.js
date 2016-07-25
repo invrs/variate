@@ -14,9 +14,10 @@ class Variate {
     }
   }
 
-  callCallback({ state: { callback } }) {
+  callCallback({ args, state: { callback } }) {
+    console.log("args", args)
     if (callback) {
-      return [ callback ]
+      callback(args)
     }
     return {}
   }
