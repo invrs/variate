@@ -150,15 +150,17 @@ describe("Variate", () => {
   })
 
   describe("remoteTest", () => {
+    let variants = [ "aremote", "bremote" ]
+
     beforeEach(() => {
-      variate({ remote: "http://localhost:4009", session_id: "test" })
+      variate({ remote: "http://127.0.0.1:4009", session_id: "test" })
     })
 
     it("returns a random variant", done => {
       let variant = variate().remoteTest({ name: "remote" })
       variant
         .then(({ variant }) => {
-          expect([ "aremote", "bremote" ].indexOf(variant) > -1).toBe(true)
+          expect(variants.indexOf(variant) > -1).toBe(true)
           done()
         })
     })
@@ -172,7 +174,7 @@ describe("Variate", () => {
         promise = promise.then(() =>
           variate().remoteTest({ name: "remote" })
         ).then(({ variant }) =>
-          expect([ "aremote", "bremote" ].indexOf(variant) > -1).toBe(true)
+          expect(variants.indexOf(variant) > -1).toBe(true)
         )
       }
 
@@ -189,6 +191,120 @@ describe("Variate", () => {
           )
           done()
         })
+    })
+
+    it("reads from document.cookie", done => {
+      variate().remoteTest({ name: "remote" }).then(({ variant }) => {
+        let promise = Promise.resolve()
+
+        for (let i of Array(10).keys()) {
+          promise = promise.then(() =>
+            variate().remoteTest({ name: "remote" })
+          ).then(args => {
+            expect(variant).toEqual(args.variant)
+          })
+        }
+
+        promise.then(done)
+      })
+    })
+
+    it("calls a callback", done => {
+      let variant
+      let remoteCallback = ({ name, variant }) => {
+        expect(name).toBe("remote")
+        expect(variants.indexOf(variant) > -1).toBe(true)
+        done()
+      }
+      variate({ remoteCallback  })
+      variate().remoteTest({ name: "remote" })
+    })
+
+    it("doesn't call the callback again", done => {
+      let shared = {}
+      let remoteCallback = () => shared.called = true
+      
+      variate({ remoteCallback }).cookie().cache = {}
+      variate().remoteTest({ name: "remote" })
+        .then(() => {
+          expect(shared.called).toBe(true)
+          shared.called = false
+        })
+        .then(() =>
+          variate().remoteTest({ name: "remote" })
+        )
+        .then(() => {
+          expect(shared.called).toBe(false)
+          done()
+        })
+    })
+  })
+
+  describe("remoteConvert", () => {
+    let variants = [ "aremote", "bremote" ]
+
+    beforeEach(() => {
+      variate({ remote: "http://127.0.0.1:4009", session_id: "test" })
+    })
+
+    it("calls a callback", done => {
+      let variant
+      let remoteCallback = ({ name, variant, converted }) => {
+        expect(name).toBe("remote")
+        expect(variants.indexOf(variant) > -1).toBe(true)
+        expect(converted).toBe(true)
+      }
+      variate().remoteTest({ name: "remote" })
+        .then(() => {
+          variate({ remoteCallback  })
+          return variate().remoteConvert({ name: "remote", random: true })
+        })
+        .then(() => done())
+    })
+
+    it("doesn't call the callback again", done => {
+      let shared = { called: false }
+      let remoteCallback = () => shared.called = true
+      
+      variate({ remoteCallback: false }).cookie().cache = {}
+      variate().remoteTest({ name: "remote" })
+        .then(() => {
+          expect(shared.called).toBe(false)
+          variate({ remoteCallback })
+          return variate().remoteConvert({ name: "remote" })
+        })
+        .then(() => {
+          expect(shared.called).toBe(true)
+          shared.called = false
+        })
+        .then(() =>
+          variate().remoteConvert({ name: "remote" })
+        )
+        .then(() => {
+          expect(shared.called).toBe(false)
+          done()
+        })
+    })
+
+    it("does nothing if document undefined", done => {
+      let called = false
+      let remoteCallback = () => called = true
+
+      unloadDocument()
+      variate({ remoteCallback })
+
+      let promise = variate().remoteTest({ name: "remote" })
+
+      for (let i of Array(10).keys()) {
+        promise = promise.then(() =>
+          variate().remoteConvert({ name: "remote" })
+        )
+      }
+
+      promise.then(() => {
+        expect(called).toBe(false)
+        done()
+      })
     })
   })
 })
