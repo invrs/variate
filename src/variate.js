@@ -15,7 +15,6 @@ class Variate {
   }
 
   callCallback({ args, state: { callback } }) {
-    console.log("args", args)
     if (callback) {
       callback(args)
     }
@@ -39,6 +38,28 @@ class Variate {
 
   getTest({ name, state: { tests } }) {
     return { test: tests[name] }
+  }
+
+  remoteConvert() {
+    return [
+      this.cookie().get,
+      this.setConverted,
+      this.cookie().get,
+      this.callCallback,
+      this.cookie().set,
+      this.remote().postConversion,
+      this.returnVariant
+    ]
+  }
+
+  remoteTest() {
+    return [
+      this.remote().getVariant,
+      this.cookie().get,
+      this.callCallback,
+      this.cookie().set,
+      this.returnVariant
+    ]
   }
 
   returnVariant({ variant }) {
@@ -73,6 +94,7 @@ class Variate {
 
   updated() {
     this.cookie(this.state())
+    this.remote(this.state())
   }
 }
 

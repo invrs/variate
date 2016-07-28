@@ -148,4 +148,47 @@ describe("Variate", () => {
       expect(called).toBe(false)
     })
   })
+
+  describe("remoteTest", () => {
+    beforeEach(() => {
+      variate({ remote: "http://localhost:4009", session_id: "test" })
+    })
+
+    it("returns a random variant", done => {
+      let variant = variate().remoteTest({ name: "remote" })
+      variant
+        .then(({ variant }) => {
+          expect([ "aremote", "bremote" ].indexOf(variant) > -1).toBe(true)
+          done()
+        })
+    })
+
+    it("returns first variant if document undefined", done => {
+      unloadDocument()
+
+      let promise = Promise.resolve()
+
+      for (let i=0; i<10; i++) {  
+        promise = promise.then(() =>
+          variate().remoteTest({ name: "remote" })
+        ).then(({ variant }) =>
+          expect([ "aremote", "bremote" ].indexOf(variant) > -1).toBe(true)
+        )
+      }
+
+      promise.then(done)
+    })
+
+    it("writes to document.cookie", done => {
+      let variant = variate().remoteTest({ name: "remote" })
+        .then(() => {
+          return variate().remoteConvert({ name: "remote" })
+        }).then(({ variant }) => {
+          expect(document.cookie).toEqual(
+            `variate={%22remote%22:%22${variant}%22%2C%22c:remote%22:1}; path=/`
+          )
+          done()
+        })
+    })
+  })
 })

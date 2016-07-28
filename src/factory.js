@@ -24,7 +24,8 @@ export default factory()
           files: {
             dirs: {},
             files: [
-              `${__dirname}/cookie.js`
+              `${__dirname}/cookie.js`,
+              `${__dirname}/remote.js`
             ],
             values: [
               require("./cookie").default
