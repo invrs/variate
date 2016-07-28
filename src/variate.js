@@ -8,17 +8,20 @@ class Variate {
   pattern() {
     let server = () => typeof document == "undefined"
     return {
-      callCallback: ({ cached }) => !server() && !cached,
-      selectFirstVariant: () => server(),
+      callCallback:        ({ cached }) => !server() && !cached,
+      callRemoteCallback:  ({ cached }) => !server() && !cached,
+      selectFirstVariant:  () => server(),
       selectRandomVariant: () => !server()
     }
   }
 
   callCallback({ args, state: { callback } }) {
-    console.log("args", args)
-    if (callback) {
-      callback(args)
-    }
+    if (callback) { callback(args) }
+    return {}
+  }
+
+  callRemoteCallback({ args, state: { remoteCallback } }) {
+    if (remoteCallback) { remoteCallback(args) }
     return {}
   }
 
@@ -39,6 +42,28 @@ class Variate {
 
   getTest({ name, state: { tests } }) {
     return { test: tests[name] }
+  }
+
+  remoteConvert() {
+    return [
+      this.cookie().get,
+      this.setConverted,
+      this.cookie().get,
+      this.callRemoteCallback,
+      this.cookie().set,
+      this.remote().postConversion,
+      this.returnVariant
+    ]
+  }
+
+  remoteTest() {
+    return [
+      this.remote().getVariant,
+      this.cookie().get,
+      this.callRemoteCallback,
+      this.cookie().set,
+      this.returnVariant
+    ]
   }
 
   returnVariant({ variant }) {
@@ -73,6 +98,7 @@ class Variate {
 
   updated() {
     this.cookie(this.state())
+    this.remote(this.state())
   }
 }
 
