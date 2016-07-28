@@ -23,7 +23,7 @@ class API {
     getVariantParams({ name, state: { remote, session_id } }) {
       return {
         params: { context: `name:${name}`, session_id },
-        url: `${remote}/arm/draw`,
+        url: `${remote.base}${remote.test_path}`,
         responder: response => { return { variant: response.data.data } },
         testResponder: () => { return { variant: "aremote" } }
       }
@@ -71,7 +71,7 @@ class API {
     postConversionParams({ name, reward="1.0", variant, state: { remote } }) {
       return {
         params: { arm: variant, context: `name:${name}`, reward },
-        url: `${remote}/arm/track-reward`,
+        url: `${remote.base}${remote.convert_path}`,
         responder: response => { return {} },
         testResponder: () => { return {} }
       }

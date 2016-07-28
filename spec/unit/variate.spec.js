@@ -16,7 +16,16 @@ let tests = { a: test }
 describe("Variate", () => {
   beforeEach(() => {
     loadDocument()
-    variate({ tests }).cookie().cache = {}
+    variate().cookie().cache = {}
+    variate({
+      remote: {
+        base: "http://127.0.0.1:4009",
+        convert_path: "/arm/track-reward",
+        test_path:    "/arm/draw"
+      },
+      session_id: "test",
+      tests
+    })
   })
 
   afterEach(() => {
@@ -39,8 +48,8 @@ describe("Variate", () => {
       let cookie = { expires: 1 }
       variate({ cookie })
       
-      expect(variate().cookie().state())
-        .toEqual({ cookie, tests: { a: [ 'b', 'c' ] } })
+      expect(variate().cookie().state().cookie).toEqual(cookie)
+      expect(variate().cookie().state().tests).toEqual(tests)
     })
   })
 
@@ -152,10 +161,6 @@ describe("Variate", () => {
   describe("remoteTest", () => {
     let variants = [ "aremote", "bremote" ]
 
-    beforeEach(() => {
-      variate({ remote: "http://127.0.0.1:4009", session_id: "test" })
-    })
-
     it("returns a random variant", done => {
       let variant = variate().remoteTest({ name: "remote" })
       variant
@@ -242,10 +247,6 @@ describe("Variate", () => {
 
   describe("remoteConvert", () => {
     let variants = [ "aremote", "bremote" ]
-
-    beforeEach(() => {
-      variate({ remote: "http://127.0.0.1:4009", session_id: "test" })
-    })
 
     it("calls a callback", done => {
       let variant
