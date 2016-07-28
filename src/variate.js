@@ -8,9 +8,9 @@ class Variate {
   pattern() {
     let server = () => typeof document == "undefined"
     return {
-      callCallback:       ({ cached }) => !server() && !cached,
-      callRemoteCallback: ({ cached }) => !server() && !cached,
-      selectFirstVariant: () => server(),
+      callCallback:        ({ cached }) => !server() && !cached,
+      callRemoteCallback:  ({ cached }) => !server() && !cached,
+      selectFirstVariant:  () => server(),
       selectRandomVariant: () => !server()
     }
   }

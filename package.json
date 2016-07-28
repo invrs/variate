@@ -9,7 +9,7 @@
     "prestart": "rm -rf lib",
     "compile": "rm -rf lib && babel src -s --out-dir lib",
     "start": "babel src -s -w --out-dir lib",
-    "test": "jasmine"
+    "test": "ENV=test jasmine"
   },
   "repository": {
     "type": "git",

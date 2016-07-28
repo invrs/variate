@@ -2,17 +2,80 @@ import factory from "./factory"
 import http from "axios"
 
 class API {
-  getVariant({ name, promise: { resolve }, state: { remote, session_id } }) {
-    let params = { context: `name:${name}`, session_id }
-    http.get(`${remote}/arm/draw`, { params })
-      .then(response => resolve({ variant: response.data.data }))
+  pattern() {
+    let test = () => process.env.ENV == "test"
+    let notTest = () => !test()
+    return {
+      httpGetRemote:  notTest,
+      httpGetTest:    test,
+      httpPostRemote: notTest,
+      httpPostTest:   test
+    }
   }
 
-  postConversion({ name, reward="1.0", variant, promise: { resolve }, state: { remote } }) {
-    let params = { arm: variant, context: `name:${name}`, reward }
-    http.post(`${remote}/arm/track-reward`, params)
-      .then(() => resolve())
+  getVariant() {
+    return [
+      this.getVariantParams,
+      this.httpGet
+    ]
   }
+
+    getVariantParams({ name, state: { remote, session_id } }) {
+      return {
+        params: { context: `name:${name}`, session_id },
+        url: `${remote}/arm/draw`,
+        responder: response => { return { variant: response.data.data } },
+        testResponder: () => { return { variant: "aremote" } }
+      }
+    }
+
+  httpGet() {
+    return [
+      this.httpGetRemote,
+      this.httpGetTest
+    ]
+  }
+
+    httpGetRemote({ params, responder, url, promise: { resolve } }) {
+      http.get(url, { params })
+        .then(response => resolve(responder(response)))
+    }
+
+    httpGetTest({ testResponder, promise: { resolve } }) {
+      resolve(testResponder())
+    }
+
+  httpPost() {
+    return [
+      this.httpPostRemote,
+      this.httpPostTest
+    ]
+  }
+
+    httpPostRemote({ params, responder, url, promise: { resolve } }) {
+      http.post(url, params)
+        .then(response => resolve(responder(response)))
+    }
+
+    httpPostTest({ testResponder, promise: { resolve } }) {
+      resolve(testResponder())
+    }
+
+  postConversion() {
+    return [
+      this.postConversionParams,
+      this.httpPost
+    ]
+  }
+
+    postConversionParams({ name, reward="1.0", variant, state: { remote } }) {
+      return {
+        params: { arm: variant, context: `name:${name}`, reward },
+        url: `${remote}/arm/track-reward`,
+        responder: response => { return {} },
+        testResponder: () => { return {} }
+      }
+    }
 }
 
 export default factory(API)
