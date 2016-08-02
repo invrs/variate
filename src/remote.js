@@ -24,7 +24,10 @@ class API {
       return {
         params: { context: `name:${name}`, session_id },
         url: `${remote.base}${remote.test_path}`,
-        responder: response => { return { variant: response.data.data } },
+        responder: response => {
+          let data = response.data.data
+          return { variant: data.name, variant_data: data }
+        },
         testResponder: () => { return { variant: "aremote" } }
       }
     }
