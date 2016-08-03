@@ -10,6 +10,7 @@ class Variate {
     return {
       callCallback:        ({ cached }) => !server() && !cached,
       callRemoteCallback:  ({ cached }) => !server() && !cached,
+      postConversion:      ({ cached }) => !server() && !cached,
       selectFirstVariant:  () => server(),
       selectRandomVariant: () => !server()
     }
@@ -44,6 +45,10 @@ class Variate {
     return { test: tests[name] }
   }
 
+  postConversion() {
+    return [ this.remote().postConversion ]
+  }
+
   remoteConvert() {
     return [
       this.cookie().get,
@@ -51,7 +56,7 @@ class Variate {
       this.cookie().get,
       this.callRemoteCallback,
       this.cookie().set,
-      this.remote().postConversion,
+      this.postConversion,
       this.returnVariant
     ]
   }
