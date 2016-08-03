@@ -26,7 +26,7 @@ class API {
         url: `${remote.base}${remote.test_path}`,
         responder: response => {
           let data = response.data.data
-          return { variant: data.name, data }
+          return { variant: data.name, data: data.value }
         },
         testResponder: () => {
           return { variant: "aremote", data: {} }
