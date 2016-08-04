@@ -29,6 +29,7 @@ export default factory()
             ],
             values: [
               require("./cookie").default
+              require("./remote").default
             ]
           }
         })
