@@ -28,7 +28,7 @@ export default factory()
               `${__dirname}/remote.js`
             ],
             values: [
-              require("./cookie").default
+              require("./cookie").default,
               require("./remote").default
             ]
           }
