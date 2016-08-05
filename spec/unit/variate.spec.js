@@ -12,6 +12,9 @@ function unloadDocument() {
 
 let test  = [ "b", "c" ]
 let tests = { a: test }
+let variant_data = {
+  variant: "aremote", data: { test: "test" }
+}
 
 describe("Variate", () => {
   beforeEach(() => {
@@ -19,12 +22,7 @@ describe("Variate", () => {
     variate().cookie().cache = {}
     variate().memory().cache = {}
     variate({
-      remote: {
-        base: "http://127.0.0.1:4009",
-        convert_path: "/arm/track-reward",
-        test_path:    "/arm/draw"
-      },
-      session_id: "test",
+      remoteCallback: () => variant_data,
       tests
     })
   })
@@ -216,6 +214,12 @@ describe("Variate", () => {
     })
 
     it("calls a callback", done => {
+      variate({
+        remoteCallback: ({ name }) => {
+          expect(name).toBe("remote")
+          return variant_data
+        }
+      })
       variate().remoteTest({ name: "remote" })
         .then(({ name, variant, data }) => {
           expect(name).toBe("remote")
@@ -225,21 +229,13 @@ describe("Variate", () => {
         })
     })
 
-    it("doesn't request twice", done => {
-      let remote = variate().remote()
-      spyOn(remote, "getVariant").and.callThrough()
-
-      variate().cookie().cache = {}
-      variate().remote().cache = {}
+    it("doesn't call a callback twice", () => {
+      let remoteCallback = jasmine.createSpy("callback")
+      variate({ remoteCallback })
       variate().remoteTest({ name: "remote" })
-        .then(() => {
-          expect(remote.getVariant).toHaveBeenCalledTimes(1)
-          return variate().remoteTest({ name: "remote" })
-        })
-        .then(() => {
-          expect(remote.getVariant).toHaveBeenCalledTimes(1)
-          done()
-        })
+      expect(remoteCallback).toHaveBeenCalledTimes(1)
+      variate().remoteTest({ name: "remote" })
+      expect(remoteCallback).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -260,51 +256,37 @@ describe("Variate", () => {
         })
     })
 
-    it("doesn't request twice", done => {
-      let remote = variate().remote()
-      spyOn(remote, "postConversion").and.callThrough()
-
-      variate().cookie().cache = {}
-      variate().remote().cache = {}
+    it("calls a callback", done => {
+      let remoteCallback = ({ name, converted }) => {
+        expect(name).toBe("remote")
+        expect(converted).toBe(true)
+        return variant_data
+      }
       variate().remoteTest({ name: "remote" })
-        .then(() =>
-          variate().remoteConvert({ name: "remote" })
-        )
-        .then(({ name, variant, data }) => {
-          expect(remote.postConversion).toHaveBeenCalledTimes(1)
-          expect(name).toBe("remote")
-          expect(variants.indexOf(variant) > -1).toBe(true)
-          expect(data).toEqual({ test: "test" })
+        .then(() => {
+          variate({ remoteCallback })
           return variate().remoteConvert({ name: "remote" })
         })
-        .then(({ name, variant, data }) => {
-          expect(remote.postConversion).toHaveBeenCalledTimes(1)
+        .then(({ name, converted, variant, data }) => {
           expect(name).toBe("remote")
           expect(variants.indexOf(variant) > -1).toBe(true)
+          expect(converted).toBe(true)
           expect(data).toEqual({ test: "test" })
           done()
         })
     })
 
-    it("does nothing if document undefined", done => {
-      let called = false
-      let remoteCallback = () => called = true
-
-      unloadDocument()
-      variate({ remoteCallback })
-
-      let promise = variate().remoteTest({ name: "remote" })
-
-      for (let i of Array(10).keys()) {
-        promise = promise.then(() =>
+    it("doesn't call a callback twice", done => {
+      let remoteCallback = jasmine.createSpy("callback")
+      variate().remoteTest({ name: "remote" })
+        .then(() => {
+          variate({ remoteCallback })
           variate().remoteConvert({ name: "remote" })
-        )
-      }
-
-      promise.then(() => {
-        expect(called).toBe(false)
-        done()
-      })
+          expect(remoteCallback).toHaveBeenCalledTimes(1)
+          variate().remoteConvert({ name: "remote" })
+          expect(remoteCallback).toHaveBeenCalledTimes(1)
+          done()
+        })
     })
   })
 })

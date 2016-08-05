@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/invrs/variate#readme",
   "dependencies": {
-    "axios": "0.13.1",
     "babel-runtime": "*",
     "industry": "2.9.0",
     "industry-chain": "1.0.0",

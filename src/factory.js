@@ -25,13 +25,11 @@ export default factory()
             dirs: {},
             files: [
               `${__dirname}/cookie.js`,
-              `${__dirname}/memory.js`,
-              `${__dirname}/remote.js`
+              `${__dirname}/memory.js`
             ],
             values: [
               require("./cookie").default,
-              require("./memory").default,
-              require("./remote").default
+              require("./memory").default
             ]
           }
         })
