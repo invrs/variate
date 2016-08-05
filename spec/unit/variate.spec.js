@@ -17,6 +17,7 @@ describe("Variate", () => {
   beforeEach(() => {
     loadDocument()
     variate().cookie().cache = {}
+    variate().memory().cache = {}
     variate({
       remote: {
         base: "http://127.0.0.1:4009",
@@ -87,7 +88,7 @@ describe("Variate", () => {
       }
     })
 
-    it("calls a callback", (done) => {
+    it("calls a callback", done => {
       let callback = ({ name, test, variant, converted }) => {
         expect(name).toBe("a")
         expect(test).toEqual(test)
@@ -114,7 +115,7 @@ describe("Variate", () => {
   })
 
   describe("convert", () => {
-    it("calls a callback", (done) => {
+    it("calls a callback", done => {
       let callback = ({ name, random, test, variant, converted }) => {
         expect(name).toBe("a")
         expect(random).toBe(true)
@@ -215,31 +216,28 @@ describe("Variate", () => {
     })
 
     it("calls a callback", done => {
-      let variant
-      let remoteCallback = ({ name, variant }) => {
-        expect(name).toBe("remote")
-        expect(variants.indexOf(variant) > -1).toBe(true)
-        done()
-      }
-      variate({ remoteCallback  })
       variate().remoteTest({ name: "remote" })
+        .then(({ name, variant, data }) => {
+          expect(name).toBe("remote")
+          expect(variants.indexOf(variant) > -1).toBe(true)
+          expect(data).toEqual({ test: "test" })
+          done()
+        })
     })
 
-    it("doesn't call the callback again", done => {
-      let shared = {}
-      let remoteCallback = () => shared.called = true
-      
-      variate({ remoteCallback }).cookie().cache = {}
+    it("doesn't request twice", done => {
+      let remote = variate().remote()
+      spyOn(remote, "getVariant").and.callThrough()
+
+      variate().cookie().cache = {}
+      variate().remote().cache = {}
       variate().remoteTest({ name: "remote" })
         .then(() => {
-          expect(shared.called).toBe(true)
-          shared.called = false
+          expect(remote.getVariant).toHaveBeenCalledTimes(1)
+          return variate().remoteTest({ name: "remote" })
         })
-        .then(() =>
-          variate().remoteTest({ name: "remote" })
-        )
         .then(() => {
-          expect(shared.called).toBe(false)
+          expect(remote.getVariant).toHaveBeenCalledTimes(1)
           done()
         })
     })
@@ -249,40 +247,41 @@ describe("Variate", () => {
     let variants = [ "aremote", "bremote" ]
 
     it("calls a callback", done => {
-      let variant
-      let remoteCallback = ({ name, variant, converted }) => {
-        expect(name).toBe("remote")
-        expect(variants.indexOf(variant) > -1).toBe(true)
-        expect(converted).toBe(true)
-      }
       variate().remoteTest({ name: "remote" })
-        .then(() => {
-          variate({ remoteCallback  })
-          return variate().remoteConvert({ name: "remote", random: true })
-        })
-        .then(() => done())
-    })
-
-    it("doesn't call the callback again", done => {
-      let shared = { called: false }
-      let remoteCallback = () => shared.called = true
-      
-      variate({ remoteCallback: false }).cookie().cache = {}
-      variate().remoteTest({ name: "remote" })
-        .then(() => {
-          expect(shared.called).toBe(false)
-          variate({ remoteCallback })
-          return variate().remoteConvert({ name: "remote" })
-        })
-        .then(() => {
-          expect(shared.called).toBe(true)
-          shared.called = false
-        })
         .then(() =>
           variate().remoteConvert({ name: "remote" })
         )
-        .then(() => {
-          expect(shared.called).toBe(false)
+        .then(({ name, variant, converted, data }) => {
+          expect(name).toBe("remote")
+          expect(variants.indexOf(variant) > -1).toBe(true)
+          expect(converted).toBe(true)
+          expect(data).toEqual({ test: "test" })
+          done()
+        })
+    })
+
+    it("doesn't request twice", done => {
+      let remote = variate().remote()
+      spyOn(remote, "postConversion").and.callThrough()
+
+      variate().cookie().cache = {}
+      variate().remote().cache = {}
+      variate().remoteTest({ name: "remote" })
+        .then(() =>
+          variate().remoteConvert({ name: "remote" })
+        )
+        .then(({ name, variant, data }) => {
+          expect(remote.postConversion).toHaveBeenCalledTimes(1)
+          expect(name).toBe("remote")
+          expect(variants.indexOf(variant) > -1).toBe(true)
+          expect(data).toEqual({ test: "test" })
+          return variate().remoteConvert({ name: "remote" })
+        })
+        .then(({ name, variant, data }) => {
+          expect(remote.postConversion).toHaveBeenCalledTimes(1)
+          expect(name).toBe("remote")
+          expect(variants.indexOf(variant) > -1).toBe(true)
+          expect(data).toEqual({ test: "test" })
           done()
         })
     })

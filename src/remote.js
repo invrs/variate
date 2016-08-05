@@ -29,7 +29,7 @@ class API {
           return { variant: data.name, data: data.value }
         },
         testResponder: () => {
-          return { variant: "aremote", data: {} }
+          return { variant: "aremote", data: { test: "test" } }
         }
       }
     }
