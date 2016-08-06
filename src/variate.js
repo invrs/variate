@@ -22,8 +22,8 @@ class Variate {
     return {}
   }
 
-  callRemoteCallback({ state: { remoteCallback } }) {
-    return [ remoteCallback ]
+  callRemoteCallback({ args, promise, state: { remoteCallback } }) {
+    remoteCallback({ ...args, promise })
   }
 
   convert() {
