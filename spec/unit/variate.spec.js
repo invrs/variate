@@ -288,5 +288,18 @@ describe("Variate", () => {
           done()
         })
     })
+
+    it("calls a callback twice if different action", done => {
+      let remoteCallback = jasmine.createSpy("callback")
+      variate().remoteTest({ name: "remote" })
+        .then(() => {
+          variate({ remoteCallback })
+          variate().remoteConvert({ name: "remote", action: "open" })
+          expect(remoteCallback).toHaveBeenCalledTimes(1)
+          variate().remoteConvert({ name: "remote", action: "submit" })
+          expect(remoteCallback).toHaveBeenCalledTimes(2)
+          done()
+        })
+    })
   })
 })

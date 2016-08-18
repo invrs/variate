@@ -18,8 +18,9 @@ class Cookie {
     return { cached: !!this.cache[key] }
   }
 
-  convertedKey({ name }) {
-    return { key: `c:${name}` }
+  convertedKey({ name, action="" }) {
+    if (action != "") { action = `:${action}` }
+    return { key: `c:${name}${action}` }
   }
 
   getCache({ name }) {
