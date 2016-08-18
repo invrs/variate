@@ -230,7 +230,7 @@ describe("Variate", () => {
     })
 
     it("doesn't call a callback twice", () => {
-      let remoteCallback = jasmine.createSpy("callback")
+      let remoteCallback = jasmine.createSpy("callback").and.returnValue(variant_data)
       variate({ remoteCallback })
       variate().remoteTest({ name: "remote" })
       expect(remoteCallback).toHaveBeenCalledTimes(1)
