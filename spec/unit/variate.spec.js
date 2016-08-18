@@ -22,7 +22,7 @@ describe("Variate", () => {
     variate().cookie().cache = {}
     variate().memory().cache = {}
     variate({
-      remoteCallback: () => variant_data,
+      remoteCallback: ({ promise: { resolve }}) => { resolve(variant_data) },
       tests
     })
   })
@@ -215,9 +215,9 @@ describe("Variate", () => {
 
     it("calls a callback", done => {
       variate({
-        remoteCallback: ({ name }) => {
+        remoteCallback: ({ name, promise: { resolve } }) => {
           expect(name).toBe("remote")
-          return variant_data
+          resolve(variant_data)
         }
       })
       variate().remoteTest({ name: "remote" })
@@ -230,7 +230,8 @@ describe("Variate", () => {
     })
 
     it("doesn't call a callback twice", () => {
-      let remoteCallback = jasmine.createSpy("callback").and.returnValue(variant_data)
+      let remoteCallback = jasmine.createSpy("callback")
+        .and.callFake(({ promise: { resolve } }) => resolve(variant_data))
       variate({ remoteCallback })
       variate().remoteTest({ name: "remote" })
       expect(remoteCallback).toHaveBeenCalledTimes(1)
@@ -257,10 +258,10 @@ describe("Variate", () => {
     })
 
     it("calls a callback", done => {
-      let remoteCallback = ({ name, converted }) => {
+      let remoteCallback = ({ name, converted, promise: { resolve } }) => {
         expect(name).toBe("remote")
         expect(converted).toBe(true)
-        return variant_data
+        resolve(variant_data)
       }
       variate().remoteTest({ name: "remote" })
         .then(() => {
